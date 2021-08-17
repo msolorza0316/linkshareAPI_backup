@@ -1,0 +1,65 @@
+ function grabLinkShareCSV() {
+//        var csvUrl = "https://ran-reporting.rakutenmarketing.com/en/reports/report/filters?start_date=" + startDate + "&end_date=" + endDate + "&include_summary=Y&network=1&tz=America%2FNew_York&date_type=transaction&token=ZW5jcnlwdGVkYToyOntzOjU6IlRva2VuIjtzOjY0OiJhZTBmN2RkYzQ0ZDE1ZTllMjkxNWVhMTg3NmE0M2Y1MGE4YzNmMzE4NWIwMGYxMzQ1ODRmZGUxYWQyMDMzNWNkIjtzOjg6IlVzZXJUeXBlIjtzOjk6IlB1Ymxpc2hlciI7fQ%3D%3D"
+
+
+/*
+    var csvUrl = "https://ran-reporting.rakutenmarketing.com/en/reports/report/filters?start_date=" + startDate + "&end_date=" + endDate + "&include_summary=Y&network=1&tz=America%2FNew_York&date_type=process&token=ZW5jcnlwdGVkYToyOntzOjU6IlRva2VuIjtzOjY0OiJhZTBmN2RkYzQ0ZDE1ZTllMjkxNWVhMTg3NmE0M2Y1MGE4YzNmMzE4NWIwMGYxMzQ1ODRmZGUxYWQyMDMzNWNkIjtzOjg6IlVzZXJUeXBlIjtzOjk6IlB1Ymxpc2hlciI7fQ%3D%3D"
+  */
+
+    var csvUrl = "https://ran-reporting.rakutenmarketing.com/en/reports/product-name-test/filters?start_date="+startDate+"&end_date=" +endDate+ "&include_summary=Y&network=1&tz=GMT&date_type=process&token=ZW5jcnlwdGVkYToyOntzOjU6IlRva2VuIjtzOjY0OiJhZTBmN2RkYzQ0ZDE1ZTllMjkxNWVhMTg3NmE0M2Y1MGE4YzNmMzE4NWIwMGYxMzQ1ODRmZGUxYWQyMDMzNWNkIjtzOjg6IlVzZXJUeXBlIjtzOjk6IlB1Ymxpc2hlciI7fQ%3D%3D"
+
+  
+    var csvContent = UrlFetchApp.fetch(csvUrl).getContentText();
+    var csvData = Utilities.parseCsv(csvContent);
+    
+    var masterData = new Array;
+    var masterDataConversions = new Array;
+      
+    Logger.log(csvData.length)
+    
+    if (csvData.length > 5) {
+      for (var a = 5; a < csvData.length; a++) {
+        
+        var advertisername = csvData[a][1]
+               
+        var revenue = csvData[a][3]
+        
+        if (masterData[advertisername] == null) {
+          masterData[advertisername] = Number(0)
+          masterDataConversions[advertisername] = Number(0)
+        }
+        
+        // check if listed revenue is not a number -- happening to numbers in the thousands w/ the comma, IDK why
+        if (isNaN(revenue)) {
+          revenue = revenue.replaceAll(",","")
+        }
+        
+        masterData[advertisername] = Number(masterData[advertisername]) + Number(revenue)
+        masterDataConversions[advertisername] = csvData[a][4]
+      } 
+      
+      for (var key in masterData) {
+        var masterStats = new Array;
+        masterStats.push(endDate);
+        masterStats.push(key);
+        masterStats.push( masterData[key] );
+        masterStats.push("LinkShare");
+        masterStats.push( masterDataConversions[key] );
+        
+        if (type == "daily") {
+          pushToMasterSheet(masterStats)
+          createNewProviderEntry_daily(masterStats)
+        } else {
+          sheet.appendRow(masterStats);
+          pushToMasterSheetMTD(masterStats);
+        };
+      }
+    } else {
+      //Linkshare API down, attempt again
+      grabLinkShareCSV()
+      //throw new Error("Linkshare API Down!");
+    }
+  }
+  
+  grabLinkShareCSV()
+}
