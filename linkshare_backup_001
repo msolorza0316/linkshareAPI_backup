@@ -1,4 +1,28 @@
- function grabLinkShareCSV() {
+function pullFromLinkShare(type, datefrom1, dateto1) {
+  var sheetName = "Linkshare"
+  
+  var startDate
+  var endDate
+  
+  if (type == "daily") {
+    startDate = dateto1
+    endDate = dateto1; // not a mistake - just their url format
+    sheetName = sheetName + " - Daily"
+  } else {
+    startDate = datefrom1;
+    endDate = dateto1;
+    sheetName = sheetName + " - MTD"
+  }
+  
+  //  https://ran-reporting.rakutenmarketing.com/en/reports/performance-activity/filters?start_date=2018-04-01&end_date=2018-04-30&include_summary=Y&network=1&tz=GMT&date_type=transaction&token=ZW5jcnlwdGVkYToyOntzOjU6IlRva2VuIjtzOjY0OiJhZTBmN2RkYzQ0ZDE1ZTllMjkxNWVhMTg3NmE0M2Y1MGE4YzNmMzE4NWIwMGYxMzQ1ODRmZGUxYWQyMDMzNWNkIjtzOjg6IlVzZXJUeXBlIjtzOjk6IlB1Ymxpc2hlciI7fQ%3D%3D
+  
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  var sheet = ss.getSheetByName(sheetName);
+  
+  var networkID = "1"
+  
+  function grabLinkShareCSV() {
 //        var csvUrl = "https://ran-reporting.rakutenmarketing.com/en/reports/report/filters?start_date=" + startDate + "&end_date=" + endDate + "&include_summary=Y&network=1&tz=America%2FNew_York&date_type=transaction&token=ZW5jcnlwdGVkYToyOntzOjU6IlRva2VuIjtzOjY0OiJhZTBmN2RkYzQ0ZDE1ZTllMjkxNWVhMTg3NmE0M2Y1MGE4YzNmMzE4NWIwMGYxMzQ1ODRmZGUxYWQyMDMzNWNkIjtzOjg6IlVzZXJUeXBlIjtzOjk6IlB1Ymxpc2hlciI7fQ%3D%3D"
 
 
@@ -16,6 +40,9 @@
     var masterDataConversions = new Array;
       
     Logger.log(csvData.length)
+
+
+    
     
     if (csvData.length > 5) {
       for (var a = 5; a < csvData.length; a++) {
